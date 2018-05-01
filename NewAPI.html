@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--Meta Data-->
+        <meta charset = "utf-8">
+        <meta title = "NITW Chapter Select">
+        <title>ZeroProject | ChapterSelect NITW</title>
+        <meta desc = "A chapter select for the indie game Night In The Woods.">
+        <!--Import-->
+        
+        <style type = "text/css">
+            @import url('https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Barlow+Semi+Condensed:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i|Dosis:200,300,400,500,600,700,800|Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i|Oswald:200,300,400,500,600,700|Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
+            @import url('https://fonts.googleapis.com/css?family=Josefin+Sans:100,100i,300,300i,400,400i,600,600i,700,700i');
+            @import url('https://fonts.googleapis.com/css?family=Slabo+27px');
+            @font-face {
+                font-family: Nitw;
+                src: url("fonts/Nitw.otf") format("opentype");
+            }
+            #download-link {
+                text-decoration: none !important;
+            }
+        </style>
+        <!--Animation-->
+        <!--Body CSS-->
+        <style type = "text/css">
+            html,head,body {
+                height: 100%;
+                overflow-y: hidden !important;
+            }
+            body {
+                margin: 0px;
+                font-family: "Nitw";
+                font-size: 22px;
+            }
+            .page-container {
+                width: 100%;
+                height: 100% !important;
+                background-color: rgb(10,10,40);
+                overflow-y: auto;
+            }
+        </style>
+        <!--Label CSS-->
+        <style type = "text/css">
+            .main-file-title {
+                font-family: "Slabo 27px";
+                color: white;
+                font-size: 1.2em;
+                text-shadow: 3px 3px 3px rgba(0,0,0,0.3);
+                position: absolute;
+                margin-left: 10px;
+                top: 5%;
+            }
+            .leaflet-container { background-color: rgb(10,10,40) !important; }
+        </style>
+        <!--Leaflet CSS-->
+        <style type = "text/css">
+            @keyframes button-hover {
+                0% {
+                    border: 3px solid black;
+                }
+                100% {
+                    border: 3px solid white;
+                }
+            }
+            @keyframes button-hover-reverse {
+                0% {
+                    border: 3px solid white;
+                }
+                100% {
+                    border: 3px solid black;
+                }
+            }
+            .title-label {
+                color: white !important;
+                /*width: 200px !important;*/
+                font-family: "Slabo 27px";
+                font-size: 20px;
+                text-shadow: 3px 3px 3px rgba(0,0,0,0.3);
+            }
+            .title-label:hover {
+                cursor: default !important;
+            }
+            .small-title-label {
+                color: white !important;
+                /*width: 200px !important;*/
+                font-family: "Raleway";
+                font-weight: 400;
+                font-size: 12px;
+            }
+            .oneLine {
+              white-space: nowrap;
+            }
+            .leaflet-pane.leaflet-overlay-pane .save-entry {
+                box-shadow: 0px 0px 20px 5px rgba(105,107,145,1) !important;
+            }
+            .regular-label {
+                font-family: "Oswald" !important;
+                color: rgb(230,230,230) !important;
+                font-size: 30px !important;
+            }
+            .act-label {
+                font-family: "Oswald" !important;
+                color: rgba(255,255,255,0.3) !important;
+                font-size: 30px;
+            }
+            .save-container {
+                position: absolute;
+                background-color: rgba(150,150,150,0.7);
+                width: 30%;
+                height: 100%;
+                z-index: 999 !important;
+                bottom: 0%;
+                left: 0%;
+            }
+            .save-title {
+                position: absolute;
+                top: 2%;
+                left: 3%;
+                font-family: "Roboto";
+                font-weight: 100;
+                color: white;
+                font-size: 1.2em;
+            }
+            /* Buttons */
+            .main-button-jumpto {
+                position: absolute;
+                top: 8%;
+                right: 3%;
+                border: 3px solid black;
+                min-width: 48px;
+                min-height: 48px;
+                max-width: 48px;
+                max-height: 48px;
+                z-index: 999 !important;
+                background-color: rgba(255,255,255,0.7);
+            }
+            .main-button-jumpto:hover { cursor: pointer; animation: 3s button-hover forwards; }
+            .main-button-jumpto:not(:hover) { cursor: default; animation: 3s button-hover-reverse forwards; }
+            .main-jumpto-select {
+                position: absolute;
+                top: 3%;
+                right: 3%;
+                z-index: 999 !important;
+                background: white;
+                border: 1px solid gray;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                padding-left: 5px;
+                padding-right: 5px;
+                font-family: "Slabo 27px";
+                font-weight: 700;
+            }
+            .main-jumpto-select option {
+                font-weight: 400;
+                background: rgba(50,50,50,0.7);
+                color: white;
+            }
+            /* Frontend */
+            .leaflet-control-attribution.leaflet-control { display: none !important; }
+            .save-image {
+                position: absolute;
+                top: 15%;
+                left: 0%;
+            }
+            hr.save-divider {
+                color: white;
+                position: absolute;
+                top: 10%;
+                margin-right: 10%;
+                margin-left: 4%;
+                width: 20%;
+            }
+            .save-descriptions {
+                position: absolute;
+                top: 60%;
+                height: 38%;
+                width: 100%;
+                overflow-y: auto;
+                font-family: "Nitw";
+                color: white;
+                border-top: 1px solid white;
+                padding-top: 10px;
+            }
+            .save-entry {
+                font-family: "Roboto";
+                color: white;
+                font-size: 18px;
+                margin-left: 4%;
+            }
+            .download-button {
+                border-radius: 40px;
+                border: 3px solid white;
+                font-family: "Josefin Sans";
+                color: white;
+                font-size: 24px;
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                height: 40px;
+                margin-left: 10%;
+                margin-right: 10%;
+            }
+            @keyframes download-animation {
+                0% {
+                    background-color: rgba(0,0,0,0.0000001);
+                    color: white;
+                }
+                100% {
+                    background-color: rgba(255,255,255,1);
+                    color: black;
+                }
+            }
+            @keyframes download-animation-reverse {
+                0% {
+                    background-color: rgba(255,255,255,1);
+                    color: black;
+                }
+                100% {
+                    background-color: rgba(0,0,0,0.0000001);
+                    color: white;
+                }
+            }
+            .download-button:hover {
+                cursor: pointer;
+                animation: download-animation 3s forwards;
+            }
+            .download-button:not(:hover) {
+                animation: download-animation-reverse 3s forwards;
+            }
+            .save-descriptions-header {
+                font-family: "Roboto";
+                font-size: 24px;
+                color: white;
+                font-weight: 300;
+                margin-left: 4%;
+            }
+            .save-descriptions::-webkit-scrollbar {
+                width: 0.5em;
+            }
+             
+            .save-descriptions::-webkit-scrollbar-track {
+                -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+                border-radius: 0.5em;
+            }
+             
+            .save-descriptions::-webkit-scrollbar-thumb {
+              background-color: darkgrey;
+              outline: 1px solid slategrey;
+              border-radius: 0.5em;
+            }
+            .top-indicator {
+                width: 100%;
+                font-size: 36px;
+                font-family: "Montserrat";
+                color: white;
+                text-shadow: 3px 3px 3px rgba(0,0,0,0.3);
+                position: absolute;
+                z-index: 999 !important;
+                text-align: center;
+            }
+            @keyframes fontanim {
+                0% {
+                    font-size: 26px;
+                }
+                50% {
+                    font-size: 26.05px;
+                }
+                100% {
+                    font-size: 26px;   
+                }
+            }
+            #description {
+                font-family: "Nitw";
+                animation: 1s fontanim infinite;
+            }
+            .not-visible { visibility: hidden !important; }
+            .visible { visibility: visible !important; }
+            .close-button {
+                position: absolute;
+                right: 3%;
+                top: 2%;
+            }
+            .close-button:hover {
+                cursor: pointer;
+                right: 2.8%;
+                top: 2.35%;
+            }
+        </style>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+    </head>
+    <body>
+        <div class = "page-header"></div>
+        <div id = "save-tree" class = "page-container">
+            
+        </div>
+        <!--Front-end GUI-->
+        <div class = "save-container not-visible" id = "save-container">
+            <div class = "save-title" id = "save-title">Day 0 - Bus Station</div>
+            <img width = "32" height = "32" src = "images/closeicon (2).png" class = "close-button" onclick = "$i.hideContainer();">
+            <hr class = "save-divider">
+            <img class = "save-image" id = "save-image" src = "images/saveimages/nightimage.png" width = "100%" height = "35%">
+            <div class = "save-descriptions">
+                <div class = "save-descriptions-header">Description & Properties:<br>_____</div><br>
+                <!--Save Entry-->
+                <div class = "save-entry"><b>Description: </b></div>
+                <div class = "save-entry" id = "description">N/A</div><br>
+                <div class = "save-entry" id = "file-name"><b>File Name: </b>N/A</div><br>
+                <div class = "save-entry" id = "ssid"><b>S.S.I.D: </b>N/A</div><br>
+                <div class = "save-entry" id = "timeline"><b>Timeline: </b>Generic</div><br>
+                <div class = "save-entry" id = "file-size"><b>File Size: </b>N/A</div><br>
+                <div class = "save-entry" id = "coordinates"><b>Coordinates: </b>0, 0</div>
+                <br>
+                <a id = "download-link" href = "#">
+                    <div class = "download-button" draggable = "false">
+                        <img src = "images/downloadicon.png" draggable = "false" width = "40" height = "40" style = "vertical-align: middle;">
+                        <span>&nbsp; DOWNLOAD</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <select id = "jumpto-options" class = "main-jumpto-select">
+            <option value = "act1">Act 1 - Home Again</option>
+            <option value = "act2">Act 2 - Weird Autumn</option>
+            <option value = "act3">Act 3 - The Long Fall</option>
+            <option value = "act4">Act 4 - The End Of Everything</option>
+            <option value = "act5">Epilogue - Stars</option>
+        </select>
+        <img src = "images/jumptoicon.png" class = "main-button-jumpto" id = "jumpto-button">
+        <!--Running Script-->
+        <script type = "text/javascript">
+        {
+            var stander;
+            var $get = {
+                id: 0,
+                zoomLevel: 0,
+                sidePanelVisible: false
+            };
+            var $settings = {
+                labelsToSmall: -1
+            }
+        } //Globals
+            var map = L.map('save-tree', {
+                crs: L.CRS.Simple,
+                minZoom: -1, //-1 Recommended
+                maxZoom: 0,
+                zoomControl: false
+            });
+            //Set Zoom
+            L.control.zoom({
+                 position:'bottomright'
+            }).addTo(map);
+            map.setView( [250, -500], -1);
+            var drawprovince;
+            provinceCreator = false;
+            creatorarray = [];
+        	map.on('click', function(e) {
+        	    if (provinceCreator) {
+        	        if (drawprovince != undefined) {
+                      map.removeLayer(drawprovince);
+                    };
+                    console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng)
+                    drawprovince = L.polygon(creatorarray).addTo(map);
+                    drawprovince.setStyle({fillColor: '#82EC87',color: '#969696', fillOpacity: '0.7'});
+                    creatorarray.push([e.latlng.lat,e.latlng.lng]);
+        	    }
+            });
+            //Script API
+            setInterval(function(){
+                
+            },100);
+            $i = {
+                add: {
+                    saveFile: function (type,x,y,title,timeline,fileName,description,downloadURL,ssid,fileSize,deutschUbersetzt) {
+                        $get.id++;
+                        var size = {
+                            y: 0,
+                            x: 0
+                        };
+                        if (type === "night") {
+                            size.y = 522;
+                            size.x = 371;
+                            var bounds = [[y,x], [y+size.y,x+size.x]];
+                            var image = L.imageOverlay('assets/nighticon.png', bounds,{className: 'save-entry'}).addTo(map);
+                        } else if (type === "morning") {
+                            size.y = 522;
+                            size.x = 371;
+                            var bounds = [[y,x], [y+size.y,x+size.x]];
+                            var image = L.imageOverlay('assets/morningicon.png', bounds,{className: 'save-entry'}).addTo(map);
+                        } else if (type === "day") {
+                            size.y = 522;
+                            size.x = 371;
+                            var bounds = [[y,x], [y+size.y,x+size.x]];
+                            var image = L.imageOverlay('assets/dayicon.png', bounds,{className: 'save-entry'}).addTo(map);
+                        } else {
+                            size.y = 522;
+                            size.x = 371;
+                            var bounds = [[y,x], [y+size.y,x+size.x]];
+                            var image = L.imageOverlay('assets/' + type + '.png', bounds,{className: 'save-entry'}).addTo(map);
+                        }
+                        
+                        //Check Zoom
+                            setInterval(function(){
+                                $get.zoomLevel = map.getZoom();
+                            },100);
+                            
+                            textLatLng = [y+size.y-20,x+20];
+                            var mainTitle = L.marker(textLatLng, {
+                                icon: L.divIcon({
+                                    className: 'title-label oneLine',   // Set class for CSS styling
+                                    html: title + "<span style = 'font-size: 10px;'><br>___________</span>",
+                                    iconSize: null
+                                }),
+                                draggable: false,       // Allow label dragging...?
+                                zIndexOffset: 1000     // Make appear above other map features
+                                });
+                                mainTitle.addTo(map);
+                        
+                        //Set Click
+                        var mouseDetect = L.polygon([
+                            [y,x],[y+size.y,x],[y+size.y,x+size.x],[y,x+size.x]
+                        ],{fillOpacity: 0}).addTo(map);
+                        mouseDetect.setStyle({opacity: 0.01});
+                        mouseDetect.on('click', function(e) {
+                            if ($get.sidePanelVisible == false) {
+                                document.getElementById("save-container").setAttribute("class","save-container visible");
+                                $get.sidePanelVisible = true;
+                            }
+                            document.getElementById("save-title").innerHTML = title;
+                            document.getElementById("save-image").setAttribute("src","images/saveimages/" + type + "image.png");
+                            document.getElementById("coordinates").innerHTML = "<b>Coordinates: </b>" + x + ", " + y;
+                            if (fileName != null) {
+                                document.getElementById("file-name").innerHTML = "<b>File Name: </b>" + fileName;
+                                document.getElementById("download-link").setAttribute("href","saves/" + fileName + ".zip");
+                            } else {
+                                document.getElementById("file-name").innerHTML = "<b>File Name: </b> N/A";
+                            }
+                            if (description != null) {
+                                document.getElementById("description").innerHTML = description;
+                            } else {
+                                document.getElementById("description").innerHTML = "N/A";
+                            }
+                            if (ssid != null) {
+                                document.getElementById("ssid").innerHTML = "<b>S.S.I.D: </b>" + description;
+                            } else {
+                                document.getElementById("ssid").innerHTML = "<b>S.S.I.D: </b> N/A";
+                            }
+                            if (fileSize != null) {
+                                document.getElementById("file-size").innerHTML = "<b>File Size: </b>" + description;
+                            } else {
+                                document.getElementById("file-size").innerHTML = "<b>File Size: </b> N/A";
+                            }
+                            if (timeline != null) {
+                                document.getElementById("timeline").innerHTML = "<b>Timeline: </b>" + timeline;
+                            } else {
+                                document.getElementById("timeline").innerHTML = "<b>Timeline: </b> N/A";
+                            }
+                        });
+                        
+                    },
+                    label: function (labeltext,x,y) {
+                        textLatLng = [y,x];
+                        var label = L.marker(textLatLng, {
+                            icon: L.divIcon({
+                                className: 'regular-label oneLine',   // Set class for CSS styling
+                                html: labeltext,
+                                iconSize: null
+                            }),
+                            draggable: false,       // Allow label dragging...?
+                            zIndexOffset: 1000     // Make appear above other map features
+                        });
+                        label.addTo(map);
+                    },
+                    actlabel: function (labeltext,x,y) {
+                        textLatLng = [y,x];
+                        var actlabel = L.marker(textLatLng, {
+                            icon: L.divIcon({
+                                className: 'act-label oneLine',   // Set class for CSS styling
+                                html: labeltext,
+                                iconSize: null
+                            }),
+                            draggable: false,       // Allow label dragging...?
+                            zIndexOffset: 1000     // Make appear above other map features
+                        });
+                        actlabel.addTo(map);
+                    }
+                },
+                hideContainer: function () {
+                     if ($get.sidePanelVisible == true) {
+                        document.getElementById("save-container").setAttribute("class","save-container not-visible");
+                        $get.sidePanelVisible = false;
+                     }
+                }
+            };
+            data = {
+                
+            };
+            //Home Again Act 1
+            //Generic
+            $i.add.saveFile("night",-500,0,"Day 0 - Bus Station","Generic","day0","Mae Borowski returns home to her hometown of Possum Springs. At the bus station, she meets a janitor, <i>The Janitor</i>, in fact, who then tells her to grab a <i>Fiascola</i> from a rigged vending machine.");
+            $i.add.saveFile("night",0,0,"Day 0 - Night","Generic","day0night","Mae has returned home to her begrudging but accepting family, and goes upstairs immediately for sleep; but only after a hike through the woods and a shipwreck-playground.");
+            $i.add.saveFile("morning",500,0,"Day 1 - Morning","Generic","day1amorning","Mae has just woken up and is ready to begin her first day in Possum Springs! Many things have now changed, including a brand-new Snack Falcon, and the town is still blocked off from festive construction.");
+            $i.add.saveFile("day",1000,0,"Day 1 - Snack Falcon","Generic","day1day","Mae is heading over to the Snack Falcon, where she'll see her long-time friend Gregg (who seems rather energetic), who hasn't been given advanced notice of her dropping out. That, and she hasn't seen him in two years.<br>Hint: Also, make sure to pick ''This isn't even a restaraunt!'' when entering the Trolleyside News enterprise in the tunnel.");
+            $i.add.saveFile("day",1500,0,"Day 1 - Die Anywhere Else","Generic","day1dieanywhereelse","That umbrella is real handy when crap hits the fan, and it's the old <i>panic</i> band practice. Just try not to have Mae forget her notes.<br> Also, she seems to have forgotten her bass-playing already. Whatever you do, don't press Escape.");
+            $i.add.saveFile("night",2000,0,"Day 1 - Night","Generic","day1night","That must have been exhausting. It sure looked exhausting. Even worse, those same three bloody boxes haven't been taken out of the crawlspace yet. But at least Mae is home and can now struggle to take off her boots. It could be worse. There could be three boots in the morning!");
+            $i.add.saveFile("morning",2500,0,"Day 2 - Morning","Generic","day2amorning","Ah, day two of the escapade, and a computer has magically dropped into Mae's room. Unfortunately, that computer seems to be loaded with a grand surprise, which most definitely isn't inappropriate. Oh, and, as for you, don't try torrenting anything. If a torrented file looks too small, it is too small. Don't open it or run the *cough* executable *cough* file.");
+            $i.add.saveFile("day",3000,0,"Day 2 - Angus' Fix","Generic","day2day","Fortunately, viruses definitely happen all by themselves! And it would appear that this one really took hold when Mae was at college. Luckily Angus has an auto-start script attached to a batch file which probably<br> clears out files based on a date modified range. Mae probably doesn't keep any sentimental <br>files on her computer. That, and, you really don't have to return the USB.");
+            $i.add.saveFile("night",3500,0,"Day 2 - Night","Generic","day2night","That was fast. It could have been far worse. Worse as in your computer blowing up. However, that's now resolved, and you don't have to worry about hiding your ''files'' in a log anymore. Ain't I right? <br>Hint: You can't unsee Incognito Mode once you realize who it is.");
+            $i.add.saveFile("morning",4000,0,"Day 3 - Morning","Generic","day3amorning","With her computer all fixed and patched up, Mae is ready to begin the real game - Demontower, and also going to a party where things definitely can't take a turn south. Anyways, it's time to turn your computer on for the second time and take a look at the messages you have. You actually might want to do this every single morning and every single night. <br>Hint: Also, please click on Sharkle and the strawberry at the top.");
+            $i.add.saveFile("day",4500,0,"Day 3 - Day","Generic","day3day","Today is a free day - just get out, explore; breathe some fresh evening air, and listen to Mae's mother grumble about how Mae wakes up at 4 'o clock in the evening. Note that these day files start right after Mae has left the house, and not in the middle of some road or tunnel somewhere. <br>Hint: Also, please do start exploring all of the town. It'll come in very handy later on.");
+            $i.add.saveFile("day",5000,0,"Day 3 - Pre-Party","Generic","day3preparty","Mae is almost to the party. Well, actually Mae is in Bea's auto, after you asked Mae to ask her begrudging former friend Bea, to drive her to the party. Unfortunately, there's also rumors going around that Cole, Mae's ex is also there at the party.");
+            $i.add.saveFile("night",5500,0,"Day 3 - The Party","Generic","day3rparty","Mae's at the party, and it's already turning sour. Don't have Mae drink too much watered-down beer. Also, try to steer clear of Cole and rely on Mae's friends instead. They prove a lot more psychologically reliable than Cole for her. <br>Hint: Also, make sure you prove that strumming Guitar alligator/crocodile a real D-bag, and pick that dialog option that reads ''Sometimes, I just don't think people like me.'' If you do decide to this, keep your eye on that guitar d-bag. It'll be real interesting.");
+            $i.add.saveFile("night",6500,0,"Day 3 - Night","Generic","day3znight","Oof. Oooooooof. That could have gone a lot better, and now it's time for Mae to astral-project back into the realm of college unfortunately, and begin dreaming... at least Bea is kind enough to help you into bed again. Demontower is about to get a lot, a lot, more real.");
+            
+            //Weird Autumn Act 2
+            //Generic
+            $i.add.saveFile("morning",7000,0,"Day 4 - Morning","Generic","day4agreggmorning","That aching hangover, and a weird dream is sure ensuring that Mae isn't feeling so good today. She also doesn't want to look in the mirror after that fiasco that went down the other night. You know what I mean, right? Anyways, it's bound not to end as well as it theoretically can.");
+            $i.add.saveFile("day",7500,0,"Day 4 - Day","Generic","day4greggday","Yet another mundane day. Luckily, the day's already halfway over and you have yet another band practice that you can attend, shock everybody in the band room, and even fling a few notes out the window.<br>Tip: This is the day when you can pick either Gregg or Bea to go with, which will lead to two separate timelines.");
+            $i.add.saveFile("day",8000,0,"Day 4 - Weird Autumn","Generic","day4weirdautumn","It's that time of year. It's that time of cheer. Mash 1,2,3,4; and Mae will be well on her way to success, or should I say, you; and getting that Steam Achievement: Bass Ackwards. Of course, everything could be worse, but what's more priceless than seeing the gang's reactions to it? That, or you could take it slow and actually get the notes done. <br>Tip: You'll get a character you can pick to hang out with.");
+            //Bea Fork
+            $i.add.saveFile("day",8500,500,"Day 4 - Mall Scenes","Bea","N/A","Mall scenes. These sorts of scenes belong at the top and/or bottom, and are laid out in chronological order. For Bea's cutscenes, they are laid out in chronological order from bottom to top. As for Gregg's cutscenes, they're laid out in chronological order from top to bottom, and can be found on the days when these cutscenes occur. Mae wants to revisit nostalgia and the already decaying mall at Ft. Lucenne. Of course, it won't be so pleasant when Mae actually gets there and realized what's happened. But, hey, at least Mae can feel like she's 14 again.");
+            $i.add.saveFile("night",9000,500,"Day 4 - Night","Bea","day4beaznight","That was quite something, and Mae got to relive nostalgia. Unfortunately, in an upcoming (thing), Mae will be reliving the bad sort of nostalgia. Also, it's time to talk with Mae's father in the hopes of finally getting into that cursed crawlspace. Ugh. <br>Tip: Garbo and Malloy is actually pretty good to watch.");
+            $i.add.saveFile("morning",9500,500,"Day 5 - Morning","Bea","day5abeamorning","It's another morning, and a new dawn. You can check out some messages out from Gregg, who you (which technically made Mae) decline to hangout with. You can also checkout some messages from Bea. Unfortunately, they won't be replying to Mae's messages, as they're away at work. If they did, that'd be rather suspicious. <br>Tip: More and more of the town unlocks over time, or rather these thirteen days.");
+            $i.add.saveFile("day",10000,500,"Day 5 - Day","Bea","day5beaday","Make sure to check out the tunnel every day, and the new unlocked areas. Try venturing past the Snack Falcon and the Diner anyhow. It might actually unlock something. These really should belong in the Tips section, but I need to fill up this description as well. Luckily, Mae's feeling a little bit better this time around. Cheers!");
+            $i.add.saveFile("night",10500,500,"Day 5 - Night","Bea","day5beanight","It's time to go to bed yet again, maybe even see another weird creature or two. Mae better be watching that Garbo and Malloy, it could lead to something useful, you know. Although you can still rack in some hours on that Demontower or perhaps even chat with Mae's friends. That, and you're kind of locked in your timeline now.");
+            $i.add.saveFile("morning",11000,500,"Day 6 - Morning","Bea","day6abeamorning","Is Mae playing that pink bass found in the left of her room? Oh, and check everything else again. And talk with Mae's Mom even after the first column of dialogue is finished. There's more to say, you know. Mae can also find her in the church up the ''Churchill'' steps. <br>Tip: By default, in these saves, Mae's bass is played on the two most recent songs each and every morning.");
+            $i.add.saveFile("day",11500,500,"Day 6 - Day","Bea","day6beaday","Time to hit the 'Ol Pickaxe. It's the eve of Harfest, and luckily, Mae is almost scot-free from feeding those mice in Mallard's tomb. Things are about to take a turn for the worse, and with all due speed too. <br>Tip: You don't have to steal a pretzel in order to feed the rats. You only need to go there. But it's more fun to steal, right?");
+            $i.add.saveFile("night",12000,500,"Day 6 - Night","Bea","day6beaznight","Only one more day, um, 12 hours, until the big day. Is it 24 October or 30 October? Nobody knows, but we can potentially just assume that this is 30 October, as the following day is referred to as Halloween. Best of all, this means that you could play on a real timescale and actually line up playthroughs. Although, if you can't remember whether this was your save, you only need to take the questionnaire.");
+            $i.add.saveFile("morning",12500,500,"Day 7 - Morning","Bea","day7abeamorning","Another morning. But not just any old morning, for this is the big day: Harfest. Have Mae go outside and breathe the fresh harfest-y air, brought to you by the Possum Springs of Commerce. Oh, and, make sure to check all of the town before you get too carried away. <br>Tip: Fun fact: Harfest is the only time when Mae's clothes are ever depicted as being changed.");
+            $i.add.saveFile("day",13000,500,"Day 7 - Day","Bea","day7abeaday","Breathe in the nice Harfest-y air. The big day is finally here, and it's actually been updated since last update (the Non-Weird Autumn Edition), which means there's new games to play. Things have seemed quite ideal so far, in fact. Make sure to go up the church steps and talk with the pastor, as it's obviously worth talking to them every day.");
+            $i.add.saveFile("day",13500,500,"Day 7 - Pre-Harfest","Bea","day7cb00beapreplay","It's time to take a look at that sweet new outfit! Witchdaggggah! But what's more is that Harfest (short for Harvest Festival) is about to begin, and the huge assortment of faces will definitely be interesting to see. You could even search for a particular character. Unfortunately, none of them are willing to talk to you.");
+            $i.add.saveFile("night",14000,500,"Day 7 - Harfest","Bea","day7cb01harfest","First stop before the play is that tent with the Fortune Teller and the water balloon toss! Make sure that you don't skip that and go straight to the 'Ol Pickaxe. Oh, and, apparently Mae's parents are absentee. But that doesn't matter.");
+            $i.add.saveFile("night",14500,500,"Day 7 - The Play","Bea","day7cb02playact1","I was hoping Mae remembered all of her lines but it sure doesn't look like it. At least she's narrowed it down to two possible choices per line. I'm sure you'll know which one is the right one and pick that. <br>Hint: The longer lines are <i>usually</i> the correct ones.");
+            $i.add.saveFile("night",15000,500,"Day 7 - The Ghost","Bea","day7cb03theghost","What was that? Never look at your screen while outside, kids. Hold up, where's he gone off to? This has become unexpectedly terrifying, but hey, at least it fits the theme of Halloween, am I right?");
+            $i.add.saveFile("night",15500,500,"Day 7 - Night","Bea","day7beaznight","That could have gone a whole lot worse. I sure hope Mae's dagger in her hat is a real dagger, cause that would help a lot.<br>Tip: Whenever Mae is silhouetted, that usually means something bad is about to happen.");
+            //Gregg Fork
+            $i.add.saveFile("day",8500,-500,"Day 4 - Crime Scenes","Gregg","N/A","It's Mae's old buddy, Gregg. And unfortunately, he's dealed with the devil, um, I mean Steve Scriggins, and Mae is left in a basement having to move a heavy crate filled with a head of your choice up to Gregg and Angus's mutual apartment. Too bad you didn't crush Gregg a million times with that box. Ouch. <br>Tip: Delay half a second when you get to the moving part and see Gregg's instructions. You have 3 seconds in total per instruction.");
+            $i.add.saveFile("night",9000,-500,"Day 4 - Night","Gregg","day4zgreggnight","And now Mae smells like glue and feels quite sore. But at least she's home so that she can take a nice, relaxing sleep, and maybe even forget about all that glue. That, or Mae is already high from it. That would technically mean she was on drugs for two days. What do you know?");
+            $i.add.saveFile("morning",9500,-500,"Day 5 - Morning","Gregg","day5agreggmorning","Rise and shine, because today, you get to talk to your mother who is never seen without her book, and go put together a leaking robot in Gregg's apartment. That, or you could magically switch over to Bea, but, hey, consistency is one of my core values. Well, not so much in real life, but in here, I mean.");
+            $i.add.saveFile("day",10000,-500,"Day 5 - Day","Gregg","day5greggday","After Mae's daily exploration routine (which hopefully you are doing), and exhausting everybody's dialogue (which hopefully you are doing), you can go to the Snack Falcon and skip out on work with Gregg.");
+            $i.add.saveFile("night",10500,-500,"Day 5 - Night","Gregg","day5greggnight","That wasn't as exhausting, but it sure was something. I mean, Mae just got shocked two times, and it actually seemed that the latter time she was more dead than the first time, which is something new. Better make sure that Mae still doesn't taste pennies by touching her Futon Frame.");
+            $i.add.saveFile("morning",11000,-500,"Day 6 - Morning","Gregg","day6agreggmorning","Rise and shine, yet again, Mae. Just one more day 'till Harfest, and a grand surprise which I cannot reveal. Although, today, of course there's something different in store. In fact, it'll probably be one of your most memorable scenes.");
+            $i.add.saveFile("day",11500,-500,"Day 6 - Day","Gregg","day6greggday","Today's the day that Mae can go into the woods. Actually, speaking of the game's title, Mae has not spent a single night actually in the woods. Today will be like any other typical day. Check out your hotspots, and run it like a well-oiled machine. If you miss one, you miss all.");
+            $i.add.saveFile("night",12000,-500,"Day 6 - Night","Gregg","day6greggnight" ,"Have you bandaged yourself up yet? I sure hope so. Mae could die of cholera if her plumbing burst in the middle of winter and it managed to leak into her cuts. Safety advised. It'll probably be harder for that <i>water</i> to get through if she's already under wraps in her blanket. Hmm.");
+            $i.add.saveFile("morning",12500,-500,"Day 7 - Morning","Gregg","day7agreggmorning","Another morning. But not just any old morning, for this is the big day: Harfest. Have Mae go outside and breathe the fresh harfest-y air, brought to you by the Possum Springs of Commerce. Oh, and, make sure to check all of the town before you get too carried away. <br>Tip: Fun fact: Harfest is the only time when Mae's clothes are ever depicted as being changed.");
+            $i.add.saveFile("day",13000,-500,"Day 7 - Day","Gregg","day7greggday","Breathe in the nice Harfest-y air. The big day is finally here, and it's actually been updated since last update (the Non-Weird Autumn Edition), which means there's new games to play. Things have seemed quite ideal so far, in fact. Make sure to go up the church steps and talk with the pastor, as it's obviously worth talking to them every day.");
+            $i.add.saveFile("day",13500,-500,"Day 7 - Pre-Harfest","Gregg","day7greggpreplay","It's time to take a look at that sweet new outfit! Witchdaggggah! But what's more is that Harfest (short for Harvest Festival) is about to begin, and the huge assortment of faces will definitely be interesting to see. You could even search for a particular character. Unfortunately, none of them are willing to talk to you.");
+            $i.add.saveFile("night",14000,-500,"Day 7 - Harfest","Gregg","day7greggy00harfest","First stop before the play is that tent with the Fortune Teller and the water balloon toss! Make sure that you don't skip that and go straight to the 'Ol Pickaxe. Oh, and, apparently Mae's parents are absentee. But that doesn't matter.");
+            $i.add.saveFile("night",14500,-500,"Day 7 - The Play","Gregg","day7greggy02playact1","I was hoping Mae remembered all of her lines but it sure doesn't look like it. At least she's narrowed it down to two possible choices per line. I'm sure you'll know which one is the right one and pick that. <br>Hint: The longer lines are <i>usually</i> the correct ones.");
+            $i.add.saveFile("night",15000,-500,"Day 7 - The Ghost","Gregg","day7greggy03theghost","What was that? Never look at your screen while outside, kids. Hold up, where's he gone off to? This has become unexpectedly terrifying, but hey, at least it fits the theme of Halloween, am I right?");
+            $i.add.saveFile("night",15500,-500,"Day 7 - Night","Gregg","day7greggznight","That could have gone a whole lot worse. I sure hope Mae's dagger in her hat is a real dagger, cause that would help a lot.<br>Tip: Whenever Mae is silhouetted, that usually means something bad is about to happen.");
+            
+            //The Long Fall Act 3
+            //Bea Fork
+            $i.add.saveFile("morning",16000,500,"Day 8 - Morning","Bea","day8abeamorning","What?????? What the heck was that? It would appear that major events are about to go down in the woods not far from here. But who would know? All that Mae can hear are the horrible noises coming out of that awful well. Who was that?");
+            $i.add.saveFile("day",16500,500,"Day 8 - Day","day8beaday","Bea","Let's forget about all of, well, <i>that</i>, and go over to Aunt Mall Cop, with whom Mae is more of an enemy than a friend. And by friend, I mean only very loosely through some weird family relations. You'll never catch me, Half Copppppahhhh!");
+            $i.add.saveFile("day",17000,500,"Day 8 - Pumpkin Head Guy","day8pumpkinheadguy","Bea","Oh no. This is the one that has the reputation for being hard as hell. But that's only if you don't see the patterns. 3-2-3-2-3. Pretty easy. And then all you have to do is press the keys the right way, and don't mash. Got it? Great! Let's see how well Mae performs now.");
+            $i.add.saveFile("day",17500,500,"Day 8 - Library","day8ybealibrary00","Bea","Welcome to the Library. Here, Mae cannot check out books, but can see some stupid Charit-y Bearit-y stuff; and go looking for ghosts up in the Library's musty attic. Perhaps you can even meet the lone librarian who most of the time, in actuality, probably just stares at the clock on the wall. Kind of like what I'm doing right now. <br>Tip: Press 'C' on a newspaper clipping to look at it.");
+            $i.add.saveFile("day",18000,500,"Day 8 - Post-Investigation","day8ybealibrary01","Bea","Mae's got three leads. She might be a regular detective, but at least she's still a detective. Well, Mae's got three leads. Let's boogie. Also, is that it? There's also a neat little meeting going on downstairs, and I hope that you choose for Mae to stay and listen: something beneficial might result from it.");
+            $i.add.saveFile("day",18500,500,"Day 8 - Poets","Bea","day8beazlatenight","There's a couple of poets hanging downstairs. Three of them that Mae recognizes, and two of them that you recognize. Of course, that's only if you've actually been exploring. Honey, I'm Horm!");
+            $i.add.saveFile("night",19000,500,"Day 8 - Night","Bea","day8zbeanight","It's night-time after an exhausting day at the library, and Mae is finally back home ready to take two dozen long naps in one long nap bucket. But now, at least you know you'll get a Longest Night library card from Bea and that you got confirmation of that. That's comforting; of course only if you get out of this alive.");
+            $i.add.saveFile("morning",19500,500,"Day 9 - Morning","Bea","day9abeamorning","Time to wake up! Today's yet another day, but today is probably going to be that last bit of un-normal before another tid-bit of normal you will ever get in this game. However, at least Mae wouldn't have to talk to all those background-noise characters while that <i>stuff</i> is going on.");
+            $i.add.saveFile("day",20000,500,"Day 9 - Day","Bea","day9beaday","Today's a rather short day. You know where you're headed, where the local tourism stops are, maybe you can even get a now <i>historic</i> brochure pamphlet at the Tourism Shop which probably still has early color photographs on it. But at least you won't have to use that, because Mae has already headed out to all of those stops already.");
+            $i.add.saveFile("day",20500,500,"Day 9 - Possum Jump Hike","Bea","day9possumjump00","Welcome to Possum Jump. Where you can even hit a possum on the way there and ironically have Possum Roadkill Grill on your way to Possum Jump, where you can jump yet another possum. Okay, maybe I'm taking that too literal. That, or it's 22:01 where I am right now, so I should really stop writing all this localization.");
+            $i.add.saveFile("day",21000,500,"Day 9 - Possum Jump Notes","Bea","day9possumjump01","One, two, three, four. One, two, three, four. Unfortunately, Angus is panting faster than if he was in a real military march exercise that's been lasting for a good solid fifteen kilometres. But how could you be so insensitive and unsympathetic, Mae. Come on, wait for him to catch up to you.");
+            $i.add.saveFile("night",21500,500,"Day 9 - Possum Jump Run","Bea","day9possumjump02","Hey. Follow my lead. Ruuuuuuunnnnn! And you'd better be fast too. He's chasing you. Maybe next time instead of carrying just Mace, Mae should carry Mace in addition to <i>a</i> mace. But make sure that you can still carry Mae out of there. That looks dangerous.");
+            $i.add.saveFile("night",22000,500,"Day 9 - Night","Bea","day9zbeanight","And you ran straight into bed. Congratulations! But don't forget to check up on all those messages you got on Mae's computer for her first Ghost Hunting expedition- there's quite a lot of these sorts of messages running around, you have to understand.");
+            //Not Avaliable File! Oh noes!
+            $i.add.saveFile("day",23000,500,"Day 10 - Day","Bea","day10beaday","The 'Ol Classic. Hit the 'Ol Pickaxe, and maybe even check in formally to Gregg's-Snack-Falcon-Ho(s)tel or Hostile for like just a minute or two. And, of course, go see a Jackie anti-fascist party. „Anti-Faschist Partei. Ist das nicht schönlide?“");
+            $i.add.saveFile("night",23500,500,"Day 10 - Night","Bea","day10beanight","Stuck together. Don't suck together. Well, at least you know what's probably coming to Mae in the future if the whole ghost thing can be resolved. At least there's some light in the room, even if it's only flourescent.");
+            $i.add.saveFile("morning",24000,500,"Day 11 - Morning","Bea","day11abeamorning","Wake up, Mae. You've got lots to do today. Well, I'm sure you know what to do, dear reader. It's pretty self-explanatory: Get into even more danger. No, seriously, that's where the story wants you to go. So, unfortunately, Mae here is not going to have such a great time.");
+            $i.add.saveFile("day",24500,500,"Day 11 - Day","Bea","day11beaday","No, the File Name is just a coincidence. I'm sure of it. Anyhow, I haven't much to talk about here; so basically you know this was your save if you had no dream the previous night and just left house. Oh, and you're on Bea's timeline with whose name people noticed you can conviniently replace every single 'b' in the Latin Alphabet.");
+            $i.add.saveFile("night",25000,500,"Day 11 - Conference","Bea","day11z00beaconvo","That was extremely scary. It's time to sit down with the gang and figure out a way to resolve this finally once and for all. There's someone stalking Mae and they're most definitely quite nefarious. <br>Tip: You take the elevator up; you take the elevator down.");
+            $i.add.saveFile("night",25500,500,"Day 11 - Night Hike I","Bea","day11z01beanighthike","Ah. There's nothing like a late-night-hike than doing one, very conviniently, without a single flashlight. I've done them in real life; but at least I had a miner's helmet. Hey, isn't that what <i>he's</i> wearing on his head? Hmm.");
+            $i.add.saveFile("night",26000,500,"Day 11 - Run Away","Bea","day11z02beanight","Run. Just Ruunnn! No time for descriptions, okay?");
+            //Gregg Fork
+            $i.add.saveFile("morning",16000,-500,"Day 8 - Morning","Gregg","day8greggmorning","What??? What was that all about? I'm certain it can't be anything bad; for it's just a well and some old, strange noises. Just have Mae go downstairs, see her <s>parents</s> parent and bid them farewell for the day. Have you ever actually thought about how Mae's Mother every gets to church before Mae? Or how Germ always manages to walk home like that despite there being 'no hole in the fence'? There must be something more than what meets the eye.");
+            $i.add.saveFile("day",16500,-500,"Day 8 - Day","Gregg","day8greggyday","Anyhow, Mae's suspicious-looking aunt-for-a-cop is out past where Germ normally is. Perhaps you could go check up on what happened the other night and maybe even file a report. 'I'm filing a report! This is a report! Right here!'");
+            $i.add.saveFile("day",17000,-500,"Day 8 - Pumpkin Head Guy","Gregg","day8greggypumpkinheadguy","Oh no. To be fair, you'd probably sooner beat the Devil out of Hell. Unfortunately, it's nine times hotter than that and your number keys are about to melt because its.. drumroll please.. Pumpkin Head Guy! Better get ready or else!");
+            $i.add.saveFile("day",17500,-500,"Day 8 - Library","Gregg","day8greggz00library","Welcome to the Library. Home to people who love staring at their books, staring at the wall, and maybe even staring at their computer screens, much like me. The Librarian may not seem very busy, but there certainly is quite a bit of workload on Mae. But all she really needs are three leads. Third time's the charm.");
+            //Not Avaliable File! Oh noes!
+            //N/A File Desc: Okay, that's done. Mae's got three leads. She's a regular detective. But let's not wonder about trivial questions such as if 'a detective murdered somebody, what would they do if they were on their own case?' More so, the wondering part would be on how they managed to find newspaper clippings that didn't even remotely have anything to do with ghosts. Huh. Strange.
+            $i.add.saveFile("day",18500,-500,"Day 8 - Poets","Gregg","day8greggz01library","Poets. Two of them you know, three of them that Mae knows. It's a fledgling poetry society, but then again; poets are often times quite a bit better when they're drunk, out in the middle of nowehere, and in solitude. So, three members for a Poetry Society will do. Wait, then how do they elect leaders or chairmen?");
+            $i.add.saveFile("night",19000,-500,"Day 8 - Night","Gregg","day8greggznight","That wasn't as exhausting as some nights, like yesterday; but it was still pretty exhausting. Check Mae's messages, maybe watch a little bit of Garbo and Malloy, and then take a trip downtown to Magical-Astral Land. What's up with that anyway? <br>Tip: The musicians are laid out, generally, in the corners of the maps.");
+            $i.add.saveFile("morning",19500,-500,"Day 9 - Morning","Gregg","day9agreggmorning","Time to wake up, Mae. You've got not so much to do today, but still quite a bit, so let's get that done. Just go downstairs, exhaust some dialog with Mae's mother, maybe even check out that crawlspace for no particular reason, oh and play that bass. Tick Tock's harder than you think!");
+            $i.add.saveFile("day",20000,-500,"Day 9 - Day","Gregg","day9greggday","Another day in a vastly different town. Today, you get to go hiking with Angus, who you'll get to learn about. And, no, he doesn't remember all the stars from Lost Constellation, cause that was a dream. And if you're wondering if this was your save, well, this is the day after the Library hangout.");
+            $i.add.saveFile("day",20500,-500,"Day 9 - Possum Jump Hike","Gregg","day9greggpossumjump00","Nice day out, isn't it? See all the neat abandoned limestone furnaces, the autumn leaves, 'Do not feed or touch the wildlife' though ironically Angus is a bear. Just take it slow, Angus can't run all that well. Why did he actually decide to stay in cross-country?");
+            $i.add.saveFile("day",21000,-500,"Day 9 - Possum Jump Notes","Gregg","day9greggpossumjump01","Look at all the notes in the bushes. They're going to be gone by winter-time. You might as well just read some of them; or actually all of them. It's not that hard to find all of these notes, and some of them are pretty <i>interesting.</i><br>Tip: Just run all the way left and run all the way right and return to the tower. Keep spamming 'C'.");
+            $i.add.saveFile("night",21500,-500,"Day 9 - Possum Jump Run","Gregg","day9greggpossumjump02","Better get that inhaler out, Angus. 'Okay. Follow my lead.' I'm sure you know how this is going to end. I think it's probably for the best if Mae starts running right NOW!");
+            $i.add.saveFile("night",22000,-500,"Day 9 - Night","Gregg","day9greggznight","And right into bed, where you'll probably have a very odd dream. But before that, you'll also have an interesting time with your Father, get to go check up on even more dialogue on your computer, and have an interesting time in general.");
+            $i.add.saveFile("morning",22500,-500,"Day 10 - Morning","Gregg","day10agreggmorning","Day 10 - Morning. Wake up, play some really, really, hard bass songs so you can get better. <i>Hint:</i> it's the pink bass to the left side of your room. Then, go downstairs, and see what book Mae's mother is reading. Barrel Boy or Eeeeeeellll Detective?");
+            $i.add.saveFile("day",23000,-500,"Day 10 - Day","Gregg","day10greggyday","There's more than meets the eye, because today is the eve of the big day that spells the beginning of the final chapter. But let's not get ahead of ourselves here. Mae has just woken up from the ever-so-strangest dream and is now ready to roam the streets of Possum Springs once again.");
+            $i.add.saveFile("night",23500,-500,"Day 10 - Night","Gregg","day10greggznight","After all of those broken dreams, I think its safe to say that Mae is going to go into bed to see some more broken dreams. But what's more than broken dreams, is that your playthrough is mostly complete. Oh no!");
+            $i.add.saveFile("morning",24000,-500,"Day 11 - Morning","Gregg","day11agreggmorning","Rise and shine, Mae. Today Mae will get to run around Possum Springs, which is essentially like what you've did for the past eleven days. Also, what was up with there being no dream the previous night? That's a little bit strange,");
+            $i.add.saveFile("day",24500,-500,"Day 11 - Day","Gregg","day11greggday","Run around, maybe go grave robbing, and commit your biggest crime yet. Speaking of which, uh, nothing I guess, have you taken Salvi's <s>Salavage</s> Salvage trip? It's new!");
+            //Not Avaliable File! Oh noes!
+            //Not Avaliable File! Oh noes!
+            $i.add.saveFile("night",26000,-500,"Day 11 - Run Away","Gregg","day11greggznight","What bad luck! Again, no time for descriptions, just keep pressing 'W' and make sure your finger is on space to jump over rocks! Oh, and don't get shot. It's not very healthy.");
+            
+            //The End Of Everything Act 4
+            //Bea Fork
+            $i.add.saveFile("morning",26500,500,"Day 12 - Morning","Bea","day12abea00morning","Now, we don't know a lot of things, but one thing we do know is that the gang's situation is looking rather bad. At least you got one more substitute, Germ; but that's not exactly too comforting. I hope they carry mace in addition to a mace.");
+            $i.add.saveFile("day",27000,500,"Day 12 - Coma","Bea","day12maecoma00","Mae doesn't look so good there, buddy. That, and we don't know why it's exactly specified as 'deathWalk' in the files. It's very suspicious. Also, do we know who these guys are?");
+            $i.add.saveFile("day",27500,500,"Day 12 - Church","Bea","day12maecoma01","Welp, at least Mae isn't dead. But they should have put her in the hospital first instead of this church where people can say nice/ malicious things about her. I'm talking to you, Mr. Penderson and Mr. Twigmeyer.");
+            $i.add.saveFile("day",28000,500,"Day 12 - Return To The Apartment","Bea","day12morning","A slightly un-normal morning becomes slightly more normal. Mae is back in their apartment and now relatively more safe than with those mine coat chasers.");
+            $i.add.saveFile("day",28500,500,"Day 12 - Apartment Day","Bea","day12nbeaday","And it would it from that day on, be celebrated as Apartment Day. Not quite, but it's better than nothing. Better start stashing weapons, but Gregg still hasn't anymore than a crossbow. Hooray!");
+            $i.add.saveFile("night",29000,500,"Day 12 - The Couch","Bea","day12o00momcall","It's late-night story time with Bea, but because this one's with Bea and Mae, it's gonna turn real. And I mean real. Thhhh. Just start listening already. In it, you'll get to hear all about why Mae actually left college, and about <i>that incident</i>, you know. <i>That incident.</i>");
+            $i.add.saveFile("night",29500,500,"Day 12 - Night","Bea","day12z00beanight","Oh no, not again. Where's Mae going? Why's she at the door? This is probably going to turn out very badly tonight. Also, next time you leave the house, don't leave it unarmed. <i>Let this be a lesson.</i>");
+            $i.add.saveFile("night",30000,500,"Day 12 - Night Hike II","Bea","day12z01eideshot","Mae's going hiking again, with the gang at least. Just that this time it's much, much scarier, and everybody's faces are silhouetted. At least Gregg didn't forget his crossbow. But who knows how many bolts he has left in it anyways? Either way, it's time to venture into the heart of darkness, and maybe retrieve a heart of light.");
+            $i.add.saveFile("night",30500,500,"Day 12 - Elevator I","Bea","day12z02minewalk","In Mae and the gang goes, deeper and deeper into Supervillain Lair. Well, if it was Supervillain Lair, supposedly all the lights would be on and that they would have plenty of stashes of weapons in this, but apparently they don't. It's only an old mine. So old, so old, so old, so old.");
+            //Missing File! Oh noes!
+            $i.add.saveFile("night",31500,500,"Day 12 - Elevator II","Bea","day12z03elevator","That was interesting. But now, we're back here at the elevator, and you know what? Actually, just try not to die. Oh and you might want to get your 'C' button ready.");
+            $i.add.saveFile("night",32000,500,"Day 12 - Black Goat","Bea","day12z04blackgoat","It's the Hole! Oh no, it's the hole. And Mae's getting sucked into it. Well, at least you can't die in one foot of water, am I right? Or maybe it's just that there's something very, very odd about this mine.");
+            $i.add.saveFile("night",32500,500,"Day 12 - Over The Well","Bea","day12z05overwell","Ah, fresh air. In a very unsettling place that reminds you of the not-so-great past. It's better than a settling place filled up to the brim with cult-gun-members though. Also, Germ has dynamite. He's a weird guy who just happens to own this well right on top of the cult. He should have dropped the dynamite a lot earlier.");
+            $i.add.saveFile("night",33000,500,"Day 12 - Computer Lecture","Bea","day12z06complecture","I'd be there to see that demolition, but Mae's back home, next to her bed, and feeling a whole lot better apparently. Which measn that she's going to go off on a tangent on her computer by her bedside on an outdated Microsoft Messenger system.");
+            $i.add.saveFile("night",33500,500,"Day 12 - Post-Computer Lecture","Bea","day12z07postcomplecture","And now, to erase that. Oh, sorry guys. I was just joking about a lot of that. Looks like I can't erase it now. Welp! Time for Mae to go to sleep. Apparently there's still time to sleep and it's only 3:00 in the morning or something.");
+            //Epilogue - Stars
+            $i.add.saveFile("morning",34000,500,"Day 13 - Morning","Bea","day13bea00morning","And the world is now a much, much better and warmer place, although, ironically, outside it's still getting colder. But, hey, at least from the sacrifice of all those cult members, the Black Goat awarded Possum Springs with a new Taco Place. But how long will it last?");
+            $i.add.saveFile("day",34500,500,"Day 13 - Day","Bea","day13abeaday","It's your last day in Possum Springs. All quiet on the Western Front. At least you have some confirmation from Aunt Molly that the rest of the cult is missing. Better check up on all your old friends before you'll finally have to bid them farewell. That is, unless you want to pick up from here or start a new timeline.");
+            $i.add.saveFile("day",35000,500,"Day 13 - Pre-Band","Bea","day13z00beabeforeband","Just before band, and this is the next to last save possible. Just twenty or so more minutes to go. And maybe discuss a few hopeful things for the future. It's the end of a new beginning.");
+            $i.add.saveFile("day",35500,500,"Day 13 - The Last Practice","Bea","day13z01beabandpractice","It's the last band practice, but unfortunately, you'll never get to play a song. What you will get to do though, is flip through that journal. One. Last. Time. R.I.P. Casey.");
+            //Gregg Fork
+            $i.add.saveFile("morning",26500,-500,"Day 12 - Morning","Gregg","day12gregg00theendofeverything","Mae could be brain-dead for all we know. Yikes. Gregg better bring that crossbow. In addition, in case you're running out of manpower, do remember that Germ is serving in as substitute for Mae today. And at least he's got mace.");
+            $i.add.saveFile("day",27000,-500,"Day 12 - Coma","Gregg","day12gregg01maecoma","Mae doesn't look like she's feeling so well. Another couple of feet, and she could be dead. Luckily, she's managed to wake up from this coma; and is now heading off back to Possum Springs, a relative safe haven in these uncertain times. What type of injury she has sustained, she doesn't know.");
+            $i.add.saveFile("day",27500,-500,"Day 12 - Church","Gregg","day12gregg02maecomachurch","Um, the first place should theoretically have been the hospital, given that she's this injured already. That, and it's a wooden bench; which generally, well, isn't very good for severely injured patients. That, and there's no further medical equipment apparently. But, hey, at least you get to see what Mae's 'mock funeral' would look like.");
+            $i.add.saveFile("day",28000,-500,"Day 12 - Return To The Apartment","Gregg","day12gregg03amorning","Welcome back to a sort-of secure apartment. It's the staging area for the last confrontation with <i>them</i>. You know, <i>that them</i>. Anyhow, Mae should probably get some rest and refuel at Gregg and Angus's apartment, although that might not always be an option since she's that injured already.");
+            $i.add.saveFile("day",28500,-500,"Day 12 - Apartment Day","Gregg","day12gregg04theapartment","Alright, well, whatever normalcy that Mae and the gang can salvage, we'll take. There's just too much stuff going on right now for Mae. Welp, try to eat whatever little bit of Pizza you can. Maybe you can even stomach Gregg's crusts.");
+            $i.add.saveFile("night",29000,-500,"Day 12 - The Couch","Gregg","day12gregg05couch","Who knew that this whole series of events could be used as a plot device? With the main characters, and especially the protagonist convinced they're going to die soon, might as well just reveal a little extra background information about themselves. Also, how did Mae call her mother? There's no reception!");
+            $i.add.saveFile("night",29500,-500,"Day 12 - Night","Gregg","day1206thehole","Welcome to the hole. Willkommen zur Loch. However you'd prefer to say it, Mae is most certainly headed toward a huge pit in the middle of nowhere, that probably leads to some sort of Eldritch Horror Thingy.");
+            $i.add.saveFile("night",30000,-500,"Day 12 - Night Hike II","Gregg","day12gregg07themine","day12gregg07themine","Well, at least that Eide was taken care of by a shot in the shoulder from Mae's buddy, Gregg. Next time, though, Gregg should have gotten them in the forehead. Now, it's either them or the gang. Shoot first, lawyer second.");
+            //Not Avaliable File! Oh noes!
+            $i.add.saveFile("night",31000,-500,"Day 12 - The Cult","Gregg","day12gregg08thecult","You're finally arriving at the cult's doorstep, and as it turns out, Gregg and Mae aren't so good at estimating. There's not one, but nearly two dozen guys, all armed with hunting rifles, down there next to that hole. How'd they get over it, nobody knows. All you know though, is that you may or may not get out of here.");
+            $i.add.saveFile("night",31500,-500,"Day 12 - Elevator II","Gregg","day12gregg09theelevator","Eide strikes back, but apparently there's now a cave-in. It sure beats the previous option, which in fact, is death. Three cheers!");
+            $i.add.saveFile("night",32000,-500,"Day 12 - Black Goat","Gregg","day12gregg10postelevator","Alright, now all you've got to do is get out of here alive. And assuming you do get out of here alive after breakign down that wooden barricade, it shouldn't be that hard for Mae and her buddies.");
+            $i.add.saveFile("night",32500,-500,"Day 12 - Over The Well","Gregg","day12gregg11thewellagain","Huh. This place, ... again. Well, you'll be comforted knowing that you'll make it out by now, since you're already over the well and nobody else can throw stones in there. It's kinda like that trolley thing.");
+            $i.add.saveFile("night",33000,-500,"Day 12 - Computer Lecture","Gregg","day12gregg12complecture","Now Mae's on a computer. Just, kinda, lecturing. I dunno. And even more interestingly, she's gonna attempt to delete all of that stuff after only to find out she can't. Whoops, guess she was just kidding about not a lot of that, but <i>all of that</i>.");
+            //Not Avaliable File! Oh noes!
+            $i.add.saveFile("morning",34000,-500,"Day 13 - Morning","Gregg","day13agreggmorning","Today is the last day of the game. Make sure that Mae will thorpoughly soak in this day in order to enjoy it further, and that she'll form an even stronger social bond with Gregg, who is soon to be moving away to Bright Harbor. It's probably neccessary for that long-distance thing to work anyhow.");
+            $i.add.saveFile("day",34500,-500,"Day 13 - Day","Gregg","day13agreggday");
+            //Not Avaliable File! Oh noes!
+            $i.add.saveFile("day",35500,-500,"Day 13 - The Last Practice","Gregg","day13z00thelastpractice","It might be the last band practice, but you, or Mae for that matter will never actually get to play a song, but you will get one sentimental last look at Mae's journal. R.I.P. Casey.");
+            
+            
+            //Cutscenes
+            //Act 1 - Home Again
+            
+            //Act 2 - Weird Autumn
+            
+            //Act 3 - The Long Fall
+            
+            //Act 4 - The End Of Everything
+            
+            
+            //Labels
+            $i.add.label("Generic - Timeline",-500,800);
+            $i.add.label("Bea - Timeline:",8000,800);
+            $i.add.label("Gregg - Timeline:",8000,-200);
+            $i.add.label("Cutscenes for Bea - Chronological",9000,2000);
+            
+            //Act Labels
+            $i.add.actlabel("Act 1 - Home Again",-500,-100);
+            $i.add.actlabel("Act 2 - Weird Autumn",8500,200);
+            $i.add.actlabel("Act 3 - The Long Fall",16000,200);
+            $i.add.actlabel("Act 4 - The End Of Everything",26500,200);
+            $i.add.actlabel("Epilogue - Stars",34000,200);
+            
+            //Click EventHandlers
+            document.getElementById("jumpto-button").onclick = function () {
+                var mainValue = document.getElementById("jumpto-options").value;
+                if (mainValue == "act1") {
+                    map.flyTo([250,-500]);
+                } else if (mainValue == "act2") {
+                    map.flyTo([0,7000]);
+                } else if (mainValue == "act3") {
+                    map.flyTo([0,16000]);
+                } else if (mainValue == "act4") {
+                    map.flyTo([0,26500]);
+                } else if (mainValue == "act5") {
+                    map.flyTo([0,34000]);
+                }
+            };
+        </script>
+    </body>
+</html>
